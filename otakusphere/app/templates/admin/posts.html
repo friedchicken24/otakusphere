@@ -1,0 +1,33 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Quản lý Bài viết - {{ super() }}{% endblock %}
+
+{% block admin_content %}
+    <h2>Quản lý Bài viết ({{ posts|length }})</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Tác giả</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post_item in posts %}
+            <tr>
+                <td>{{ post_item.id }}</td>
+                <td><a href="{{ url_for('user.view_post', post_id=post_item.id) }}">{{ post_item.title }}</a></td>
+                <td>{{ post_item.author_user.username }}</td>
+                <td>{{ post_item.created_at.strftime('%d-%m-%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('user.edit_post', post_id=post_item.id) }}">Sửa</a> |
+                    <form method="POST" action="{{ url_for('user.delete_post', post_id=post_item.id) }}" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                        <input type="submit" value="Xóa">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

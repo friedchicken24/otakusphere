@@ -1,0 +1,74 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ post.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+    <article class="post">
+        <h2>{{ post.title }}</h2>
+        <p class="post-meta">
+            Đăng bởi <a href="{{ url_for('user.profile', username=post.author_user.username) }}">{{ post.author_user.username }}</a> 
+            vào {{ post.created_at.strftime('%d-%m-%Y %H:%M') }}
+            {% if post.created_at != post.updated_at %}
+                (Chỉnh sửa lần cuối: {{ post.updated_at.strftime('%d-%m-%Y %H:%M') }})
+            {% endif %}
+        </p>
+        <div class="post-content">
+            {{ post.content|safe }} {# Dùng safe nếu content là HTML, cẩn thận XSS nếu không sanitize #}
+        </div>
+        <p>
+            Thể loại: 
+            {% for genre in post.genres %}
+                <span class="genre-tag">{{ genre.name }}</span>{% if not loop.last %}, {% endif %}
+            {% else %}
+                Chưa có thể loại
+            {% endfor %}
+        </p>
+        <p>
+            {{ post.likes|length }} lượt thích.
+            {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('user.like_post', post_id=post.id) }}" style="display:inline;">
+                    <input type="submit" value="{{ 'Bỏ thích' if user_liked_post else 'Thích' }}">
+                </form>
+            {% endif %}
+        </p>
+
+        {% if current_user.is_authenticated and (current_user.id == post.author_id or current_user_role == 'admin') %}
+            <a href="{{ url_for('user.edit_post', post_id=post.id) }}">Chỉnh sửa</a>
+            <form method="POST" action="{{ url_for('user.delete_post', post_id=post.id) }}" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                <input type="submit" value="Xóa">
+            </form>
+        {% endif %}
+    </article>
+
+    <section class="comments-section">
+        <h3>Bình luận ({{ comments|length }})</h3>
+        {% if current_user.is_authenticated %}
+            <form method="POST" novalidate> {# Form action mặc định là URL hiện tại #}
+                {{ comment_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ comment_form.content.label }}<br>
+                    {{ comment_form.content(rows=3, cols=60) }}<br>
+                    {% for error in comment_form.content.errors %}
+                    <span class="error">[{{ error }}]</span><br>
+                    {% endfor %}
+                </div>
+                <p>{{ comment_form.submit() }}</p>
+            </form>
+        {% else %}
+            <p><a href="{{ url_for('auth.login', next=request.url) }}">Đăng nhập</a> để bình luận.</p>
+        {% endif %}
+
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="comment">
+                    <p><strong class="comment-author">{{ comment.author_user.username }}</strong> 
+                       <span class="post-meta">vào {{ comment.created_at.strftime('%d-%m-%Y %H:%M') }}</span>
+                    </p>
+                    <p>{{ comment.content }}</p>
+                    {# Thêm nút sửa/xóa bình luận sau #}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Chưa có bình luận nào.</p>
+        {% endif %}
+    </section>
+{% endblock %}

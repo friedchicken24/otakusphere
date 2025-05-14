@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+{% block title %}Thông báo - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>Thông báo của bạn ({{ notifications|length }})</h2>
+
+    {# Nút "Đánh dấu tất cả đã đọc" sẽ được hiển thị dựa trên biến current_user_unread_notifications từ context_processor #}
+    {# Hoặc, nếu bạn muốn kiểm tra trực tiếp từ danh sách notifications được truyền vào: #}
+    {% set has_unread = false %}
+    {% for notif in notifications %}
+        {% if not notif.is_read %}
+            {% set has_unread = true %}
+            
+        {% endif %}
+    {% endfor %}
+
+    {% if notifications and has_unread %}
+        <form method="POST" action="{{ url_for('user.mark_all_notifications_read') }}" style="margin-bottom:15px;">
+            <input type="submit" value="Đánh dấu tất cả đã đọc">
+        </form>
+    {% endif %}
+
+    {% if notifications %}
+        <ul style="list-style: none; padding: 0;">
+            {% for notif in notifications %}
+                <li style="border: 1px solid #eee; padding: 10px; margin-bottom: 10px; {% if not notif.is_read %}background-color: #f0f8ff; font-weight: bold;{% else %}background-color: #fff;{% endif %}">
+                    <div class="notification-content">
+                        {# Hiển thị avatar của người thực hiện hành động nếu có #}
+                        {% if notif.actor_user and notif.actor_user.avatar_url %}
+                            <img src="{{ notif.actor_user.avatar_url }}" alt="{{ notif.actor_user.username }}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; vertical-align: middle;">
+                        {% elif notif.actor_user %}
+                             <span style="display:inline-block; width:30px; height:30px; background-color:#ccc; border-radius:50%; text-align:center; line-height:30px; margin-right:10px; vertical-align: middle;">{{ notif.actor_user.username[0]|upper }}</span>
+                        {% endif %}
+                        <span style="vertical-align: middle;">{{ notif.content }}</span>
+                    </div>
+                    <small style="display:block; color: #777; font-weight:normal; margin-top: 5px;">
+                        {% if notif.created_at %}{{ notif.created_at.strftime('%H:%M ngày %d-%m-%Y') }}{% endif %}
+                    </small>
+                    
+                    {# Chỉ hiển thị các hành động nếu thông báo chưa đọc HOẶC có link #}
+                    {% if notif.link or not notif.is_read %}
+                    <p style="margin-top:8px; margin-bottom: 0;">
+                        {% if notif.link %}
+                            <a href="{{ notif.link }}" class="button-link">Xem chi tiết</a>
+                        {% endif %}
+                        
+                        {% if not notif.is_read %}
+                            {% if notif.link %} | {% endif %} {# Thêm dấu | chỉ khi có link VÀ chưa đọc #}
+                            <form method="POST" action="{{ url_for('user.mark_notification_read', notification_id=notif.id) }}" style="display:inline;">
+                                <input type="submit" value="Đánh dấu đã đọc" class="button-link-small">
+                            </form>
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Bạn không có thông báo nào.</p>
+    {% endif %}
+
+    {# Thêm một chút CSS để các nút link trông đẹp hơn #}
+    <style>
+        .button-link, .button-link-small {
+            text-decoration: none;
+            padding: 3px 8px;
+            border: 1px solid #007bff;
+            color: #007bff;
+            border-radius: 3px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .button-link:hover, .button-link-small:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .button-link-small {
+            font-size: 0.8em;
+            padding: 2px 5px;
+        }
+        input[type="submit"].button-link-small { /* Để áp dụng cho input submit */
+             border: 1px solid #007bff;
+             color: #007bff;
+             background-color: white;
+        }
+        input[type="submit"].button-link-small:hover {
+             background-color: #007bff;
+             color: white;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,9 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Werkzeug==3.0.1
+mysqlclient==2.2.1 # Hoặc PyMySQL nếu bạn thích
+python-dotenv==1.0.0
+email-validator==2.1.1 # Cần cho WTForms Email validator

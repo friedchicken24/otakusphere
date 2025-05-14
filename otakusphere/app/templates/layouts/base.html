@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OtakuSphere{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><a href="{{ url_for('user.home') }}">OtakuSphere</a></h1>
+            <nav>
+                <a href="{{ url_for('user.home') }}">Trang chủ</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('user.create_post') }}">Tạo bài viết</a>
+                    <a href="{{ url_for('user.friends_list') }}">Bạn bè</a>
+                    <a href="{{ url_for('user.notifications') }}">
+                        Thông báo 
+                        {% set unread_count = current_user.unread_notification_count() %}
+                        {% if unread_count > 0 %}
+                            <span class="badge" style="background-color: red; color: white; padding: 2px 5px; border-radius: 50%;">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('user.profile', username=current_user.username) }}">Hồ sơ của tôi</a>
+                    {% if current_user_role == 'admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}">Trang Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}">Đăng xuất ({{ current_user.username }})</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">Đăng nhập</a>
+                    <a href="{{ url_for('auth.register') }}">Đăng ký</a>
+                {% endif %}
+            </nav>
+        </header>
+        <hr>
+        {% include 'partials/_flash_messages.html' %}
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+        <footer>
+            <hr>
+            <p>© {{ get_current_year() }} OtakuSphere</p> 
+        </footer>
+    </div>
+</body>
+</html>
+
+get_current_year()

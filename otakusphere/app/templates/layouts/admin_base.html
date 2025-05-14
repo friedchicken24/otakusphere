@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - OtakuSphere{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><a href="{{ url_for('admin.dashboard') }}">OtakuSphere - Trang Quản Trị</a></h1>
+            <nav>
+                <a href="{{ url_for('user.home') }}">Xem trang người dùng</a>
+                {% if current_user.is_authenticated %}
+                     <a href="{{ url_for('auth.logout') }}">Đăng xuất ({{ current_user.username }})</a>
+                {% endif %}
+            </nav>
+        </header>
+        <hr>
+        <div class="admin-content" style="display: flex;">
+            <aside class="admin-nav" style="width: 200px; margin-right: 20px; border-right: 1px solid #eee; padding-right: 20px;">
+                <h4>Menu Quản Trị</h4>
+                <ul>
+                    <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('admin.list_users') }}">Quản lý Người dùng</a></li>
+                    <li><a href="{{ url_for('admin.list_posts') }}">Quản lý Bài viết</a></li>
+                    <li><a href="{{ url_for('admin.list_genres') }}">Quản lý Thể loại</a></li>
+                    <li><a href="#">Quản lý Bình luận (TODO)</a></li>
+                </ul>
+            </aside>
+            <main style="flex-grow: 1;">
+                {% include 'partials/_flash_messages.html' %}
+                {% block admin_content %}{% endblock %}
+            </main>
+        </div>
+        <footer>
+            <hr>
+            <p>© {{ now().year }} OtakuSphere Admin</p>
+        </footer>
+    </div>
+</body>
+</html>

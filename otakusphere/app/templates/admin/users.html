@@ -1,0 +1,50 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Quản lý Người dùng - {{ super() }}{% endblock %}
+
+{% block admin_content %}
+    <h2>Quản lý Người dùng ({{ users|length }})</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Hoạt động</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_item in users %}
+            <tr>
+                <td>{{ user_item.id }}</td>
+                <td>{{ user_item.username }}</td>
+                <td>{{ user_item.email }}</td>
+                <td>{{ user_item.role }}</td>
+                <td>{{ 'Có' if user_item.is_active else 'Không' }}</td>
+                <td>{{ user_item.created_at.strftime('%d-%m-%Y') }}</td>
+                <td>
+                    {% if user_item.id != current_user.id %}
+                    <form method="POST" action="{{ url_for('admin.toggle_user_active', user_id=user_item.id) }}" style="display:inline;">
+                        <input type="submit" value="{{ 'Vô hiệu hóa' if user_item.is_active else 'Kích hoạt' }}">
+                    </form>
+                    |
+                    {% if user_item.role == 'user' %}
+                    <form method="POST" action="{{ url_for('admin.set_user_role', user_id=user_item.id, new_role='admin') }}" style="display:inline;">
+                        <input type="submit" value="Đặt làm Admin">
+                    </form>
+                    {% elif user_item.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('admin.set_user_role', user_id=user_item.id, new_role='user') }}" style="display:inline;">
+                        <input type="submit" value="Đặt làm User">
+                    </form>
+                    {% endif %}
+                    {% else %}
+                    (Bạn)
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "layouts/base.html" %}
+{% block title %}Bạn bè - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>Bạn bè của bạn ({{ friends|length }})</h2>
+    {% if friends %}
+        <ul>
+            {% for friend in friends %}
+                <li>
+                    <a href="{{ url_for('user.profile', username=friend.username) }}">{{ friend.username }}</a>
+                    <form method="POST" action="{{ url_for('user.unfriend', username=friend.username) }}" style="display:inline; margin-left: 10px;">
+                        <input type="submit" value="Hủy kết bạn" style="font-size:0.8em; padding: 2px 5px;">
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Bạn chưa có bạn bè nào.</p>
+    {% endif %}
+
+    <hr>
+    <h3>Yêu cầu kết bạn đang chờ bạn chấp nhận ({{ pending_requests|length }})</h3>
+    {% if pending_requests %}
+        <ul>
+            {% for req in pending_requests %}
+                <li>
+                    <a href="{{ url_for('user.profile', username=req.requester.username) }}">{{ req.requester.username }}</a>
+                    <form method="POST" action="{{ url_for('user.accept_friend_request', username=req.requester.username) }}" style="display:inline; margin-left: 10px;">
+                        <input type="submit" value="Chấp nhận" style="font-size:0.8em; padding: 2px 5px;">
+                    </form>
+                    <form method="POST" action="{{ url_for('user.decline_friend_request', username=req.requester.username) }}" style="display:inline; margin-left: 5px;">
+                        <input type="submit" value="Từ chối" style="font-size:0.8em; padding: 2px 5px;">
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Không có yêu cầu kết bạn nào đang chờ.</p>
+    {% endif %}
+
+    <hr>
+    <h3>Yêu cầu kết bạn bạn đã gửi ({{ sent_pending_requests|length }})</h3>
+    {% if sent_pending_requests %}
+        <ul>
+            {% for req in sent_pending_requests %}
+                <li>Đã gửi yêu cầu đến <a href="{{ url_for('user.profile', username=req.receiver.username) }}">{{ req.receiver.username }}</a> (Chờ chấp nhận)</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Bạn chưa gửi yêu cầu kết bạn nào đang chờ xử lý.</p>
+    {% endif %}
+{% endblock %}

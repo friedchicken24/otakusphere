@@ -1,0 +1,31 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ legend or 'Tạo bài viết mới' }} - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>{{ legend or 'Tạo bài viết mới' }}</h2>
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }}<br>
+            {{ form.title(size=60) }}<br>
+            {% for error in form.title.errors %}
+            <span class="error">[{{ error }}]</span><br>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.content.label }}<br>
+            {{ form.content(rows=10, cols=60) }}<br>
+            {% for error in form.content.errors %}
+            <span class="error">[{{ error }}]</span><br>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.genres.label }}<br>
+            {{ form.genres(size=5) }} <i>(Giữ Ctrl/Cmd để chọn nhiều)</i><br>
+            {% for error in form.genres.errors %}
+            <span class="error">[{{ error }}]</span><br>
+            {% endfor %}
+        </div>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

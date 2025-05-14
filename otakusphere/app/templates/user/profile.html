@@ -1,0 +1,53 @@
+{% extends "layouts/base.html" %}
+{% block title %}Hồ sơ {{ user_profile.username }} - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>Hồ sơ của {{ user_profile.username }}</h2>
+    <p><strong>Email:</strong> {{ user_profile.email }}</p>
+    <p><strong>Tham gia vào:</strong> {{ user_profile.created_at.strftime('%d-%m-%Y') }}</p>
+    <p><strong>Vai trò:</strong> {{ user_profile.role }}</p>
+    {% if user_profile.bio %}
+        <p><strong>Giới thiệu:</strong><br>{{ user_profile.bio }}</p>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+        {% if is_self %}
+            <p><a href="#">Chỉnh sửa hồ sơ (TODO)</a></p>
+        {% else %}
+            <div class="friendship-actions" style="margin-top: 15px; margin-bottom:15px;">
+                {% if are_friends %}
+                    <p>Bạn và {{ user_profile.username }} là bạn bè.</p>
+                    <form method="POST" action="{{ url_for('user.unfriend', username=user_profile.username) }}" style="display:inline;">
+                        <input type="submit" value="Hủy kết bạn">
+                    </form>
+                {% elif sent_request %}
+                    <p>Đã gửi yêu cầu kết bạn. Chờ {{ user_profile.username }} chấp nhận.</p>
+                {% elif received_request %}
+                    <p>{{ user_profile.username }} đã gửi cho bạn lời mời kết bạn.</p>
+                    <form method="POST" action="{{ url_for('user.accept_friend_request', username=user_profile.username) }}" style="display:inline;">
+                        <input type="submit" value="Chấp nhận">
+                    </form>
+                    <form method="POST" action="{{ url_for('user.decline_friend_request', username=user_profile.username) }}" style="display:inline;">
+                        <input type="submit" value="Từ chối">
+                    </form>
+                {% else %}
+                    <form method="POST" action="{{ url_for('user.send_friend_request', username=user_profile.username) }}" style="display:inline;">
+                        <input type="submit" value="Gửi yêu cầu kết bạn">
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+
+
+    <h3>Bài viết của {{ user_profile.username }} ({{ posts|length }})</h3>
+    {% if posts %}
+        <ul>
+        {% for post in posts %}
+            <li><a href="{{ url_for('user.view_post', post_id=post.id) }}">{{ post.title }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>{{ user_profile.username }} chưa có bài viết nào.</p>
+    {% endif %}
+{% endblock %}
